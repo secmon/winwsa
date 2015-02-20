@@ -1,5 +1,5 @@
-Документация Windows Workstations Security Analyser (winwsa)
-===================
+Windows Workstations Security Analyser (winwsa)
+===============================================
 
 Проект находится в стадии разработки.
 
