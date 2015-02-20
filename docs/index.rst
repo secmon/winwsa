@@ -9,8 +9,8 @@ Windows Workstations Security Analyser (winwsa)
 .. toctree::
     :maxdepth: 2
 
-    parsers
     glossary
+    parsers
 
 Схема описания показателей
 ==========================
