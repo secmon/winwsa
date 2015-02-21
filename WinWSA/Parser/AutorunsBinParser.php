@@ -3,174 +3,157 @@ namespace WinWSA\Parser;
 
 /**
  * @file WinWSA\Parser\AutorunsBinParser.php
- * Autoruns binary report parser.
+ * Autoruns binary (ARN) report parser.
  */
 
 class AutorunsBinParser {
-    /** @var string */
-    protected $filepath;
+    /**
+     * List of vendor categories in order of their appearance in ARN file (same as in Autoruns GUI).
+     *
+     * @var array
+     */
+    protected $vnd_cats = array(
+        'Logon',
+        'Explorer',
+        'Internet Explorer',
+        'Scheduled Tasks',
+        'Services',
+        'Drivers',
+        'Codecs',
+        'Boot Execute',
+        'Image Hijacks',
+        'AppInit',
+        'KnownDLLs',
+        'Winlogon',
+        'Winsock Providers',
+        'Print Monitors',
+        'LSA Providers',
+        'Network Providers',
+        'WMI',
+        'Sidebar Gadgets',
+    );
 
-    public function __construct($filepath = NULL) {
-        if ($filepath) {
-            $this->filepath = $filepath;
+    public function __construct() {}
+
+    /**
+     * Parse given ARN file.
+     *
+     * @param $arnpath  string  Path to Autoruns binary report.
+     * @param $iconsdir string  Path for saving icons. If NULL, icons will not be extracted.
+     * @return  array  Array of parsed items.
+     *
+     * @throws \Exception
+     */
+    public function parse($arnpath, $iconsdir = NULL) {
+        if ($iconsdir) {
+            if (!is_dir($iconsdir) || !is_writable($iconsdir)) {
+                throw new Exception('Path for saving icons in not exists or is not writable', 1);
+            }
         }
+
+        if (!($fp = fopen($arnpath, "rb"))) {
+            throw new Exception('Unable to open ARN file for reading', 1);
+        }
+
+
+
+        // Set file pointer to data start.
+//   // fseek($fp, 1823636); // arn.arn
+//   fseek($fp, 1596820); // arn2.arn
+
+        $current_vnt_cat = reset($this->vnd_cats);
+
+        // location starts first after icons section.
+        $separator = '00000000';
+
+        while (TRUE) {
+            switch ($separator) {
+                // Маркер следующего раздела (вендорской категории). Раздел может быть пустым: в таком 
+                // случае, следующими 4 байтами также будут '0d000000'. Обычно, вне зависимости от 
+                // заполнения разделов, в файле присутствуют маркеры каждого.
+                case '0d000000':
+                    $current_vnt_cat = next($vnd_cats);
+                    break;
+
+                // Маркер начала location.
+                case '00000000':
+                    $loc = $this->readLocation($fp);
+                    break;
+
+                // Маркер начала описания показателя.
+                case '2b000000':
+                    $item = $this->readItem($fp, 'vnd_');
+                    $item['vnd_cat'] = $current_vnt_cat;
+                    ksort($item);
+                    break;
+
+                // Разделитель, который стоит либо после показателя, либо после location. Причем, после
+                // последнего показателя/location в файле, он не указывается.
+                case '0a000000':
+                    break;
+
+                // В случае обнаружения неизвестного разделителя, работа прекращается.
+                default:
+                    throw new Exception('Unknown separator '. htmlspecialchars($separator), 1);
+            }
+
+            $separator = fread($fp, 4);
+            if (!$separator) {
+                break;
+            }
+            $separator = bin2hex($separator);
+        }
+
+        fclose($fp);
     }
 
-    public function parse() {
-
-    }
-
-    public function setFilepath($filepath) {
-        $this->filepath = $filepath;
-    }
-
-    protected function read_location($fp) {
+    protected function readLocation($fp) {
         $loc = array();
-        $loc['location'] = $this->read_lendata($fp);
-        $loc['unparsed1'] = bin2hex($this->read_data($fp, 4));
-        $loc['changed'] = $this->read_lendata($fp);  
+        $loc['location']  = $this->readLendata($fp);
+        $loc['unparsed1'] = bin2hex($this->readData($fp, 4));
+        $loc['changed']   = $this->readLendata($fp);  
         return $loc;
     }
 
-    protected function read_len($fp) {
+    protected function readLen($fp) {
         $length = unpack("i", fread($fp, 4));
         $length = intval($length[1]);
         return $length;
     }
 
-    protected function read_lendata($fp) {
-        $length = $this->read_len($fp);
+    protected function readLendata($fp) {
+        $length = $this->readLen($fp);
         if (!$length || $length > 800) {
             return NULL;
         }
-        return $this->read_data($fp, $length);
+        return $this->readData($fp, $length);
     }
 
-    protected function read_data($fp, $length) {
+    protected function readData($fp, $length) {
         $data = fread($fp, $length);
-        return $data ? iconv("unicode", "utf-8", $data) : NULL;
+        return $data ? iconv('unicode', 'utf-8', $data) : NULL;
     }
 
-    protected function read_item($fp, $key_prefix = '') {
+    protected function readItem($fp, $key_prefix = '') {
         $item = array();
-        $item[$key_prefix.'itemname']     = $this->read_lendata($fp);
-        $item[$key_prefix.'unparsed1']    = bin2hex($this->read_data($fp, 4));
-        $item[$key_prefix.'description']  = $this->read_lendata($fp);
-        $item[$key_prefix.'signer']       = $this->read_lendata($fp);
-        $item[$key_prefix.'imagepath']    = $this->read_lendata($fp);
-        $item[$key_prefix.'time']         = $this->read_lendata($fp);
-        $item[$key_prefix.'unparsed2']    = bin2hex($this->read_data($fp, 20));
-        $item[$key_prefix.'launchstring'] = $this->read_lendata($fp);
-        $item[$key_prefix.'location']     = $this->read_lendata($fp);
-        $item[$key_prefix.'unknown1']     = $this->read_lendata($fp);
-        $item[$key_prefix.'size']         = $this->read_len($fp);
-        $item[$key_prefix.'time2']        = $this->read_lendata($fp);
-        $item[$key_prefix.'company']      = $this->read_lendata($fp);
-        $item[$key_prefix.'unknown2']     = $this->read_lendata($fp);
-        $item[$key_prefix.'version']      = $this->read_lendata($fp);
-        $item[$key_prefix.'unknown3']     = $this->read_lendata($fp);
-        $item[$key_prefix.'unparsed3']    = bin2hex($this->read_data($fp, 4));
-        $item[$key_prefix.'time3']        = $this->read_lendata($fp);
+        $item[$key_prefix.'itemname']     = $this->readLendata($fp);
+        $item[$key_prefix.'unparsed1']    = bin2hex($this->readData($fp, 4));
+        $item[$key_prefix.'description']  = $this->readLendata($fp);
+        $item[$key_prefix.'signer']       = $this->readLendata($fp);
+        $item[$key_prefix.'imagepath']    = $this->readLendata($fp);
+        $item[$key_prefix.'time']         = $this->readLendata($fp);
+        $item[$key_prefix.'unparsed2']    = bin2hex($this->readData($fp, 20));
+        $item[$key_prefix.'launchstring'] = $this->readLendata($fp);
+        $item[$key_prefix.'location']     = $this->readLendata($fp);
+        $item[$key_prefix.'unknown1']     = $this->readLendata($fp);
+        $item[$key_prefix.'size']         = $this->readLen($fp);
+        $item[$key_prefix.'time2']        = $this->readLendata($fp);
+        $item[$key_prefix.'company']      = $this->readLendata($fp);
+        $item[$key_prefix.'unknown2']     = $this->readLendata($fp);
+        $item[$key_prefix.'version']      = $this->readLendata($fp);
+        $item[$key_prefix.'unknown3']     = $this->readLendata($fp);
+        $item[$key_prefix.'unparsed3']    = bin2hex($this->readData($fp, 4));
+        $item[$key_prefix.'time3']        = $this->readLendata($fp);
         return $item;
     }    
-
 }
-
-
-// function secmon_tmp_parse_arn() {
-//   $filepath = '/var/www/secmon/www/sites/all/modules/secmon/arn2.arn';
-//   if (!($fp = fopen($filepath, "rb"))) {
-//     throw new Exception('Unable to open file', 1);
-//   }
-
-//   // Статистика работы функции.
-//   $func_stats = array(
-//     'items_cnt' => 0,
-//     'locs_cnt'  => 0,
-//   );
-
-//   // Установка указателя на начало данных.
-//   // fseek($fp, 1823636); // arn.arn
-//   fseek($fp, 1596820); // arn2.arn
-
-//   // Список вендорских категорий (разделов) в порядке их появления в файле (такой же порядок
-//   // в GUI-утилите Autoruns).
-//   $vnd_cats = array(
-//     "Logon",
-//     "Explorer",
-//     "Internet Explorer",
-//     "Scheduled Tasks",
-//     "Services",
-//     "Drivers",
-//     "Codecs",
-//     "Boot Execute",
-//     "Image Hijacks",
-//     "AppInit",
-//     "KnownDLLs",
-//     "Winlogon",
-//     "Winsock Providers",
-//     "Print Monitors",
-//     "LSA Providers",
-//     "Network Providers",
-//     "WMI",
-//     "Sidebar Gadgets",
-//   );
-//   $current_vnt_cat = reset($vnd_cats);
-//   dpm('Раздел - '. $current_vnt_cat);
-
-//   // Первой после иконок пойдет location.
-//   $separator = '00000000';
-
-//   while (TRUE) {
-//     switch ($separator) {
-//       // Маркер следующего раздела (вендорской категории). Раздел может быть пустым: в таком 
-//       // случае, следующими 4 байтами также будут '0d000000'. Обычно, вне зависимости от 
-//       // заполнения разделов, в файле присутствуют маркеры каждого.
-//       case '0d000000':
-//         $current_vnt_cat = next($vnd_cats);
-//         dpm('Раздел - '. $current_vnt_cat);
-//         break;
-
-//       // Маркер начала location.
-//       case '00000000':
-//         $loc = secmon_tmp_parse_arn__read_location($fp);
-//         secmon_tmp_parse_arn__dpm($loc);
-//         $func_stats['locs_cnt']++;
-//         break;
-
-//       // Маркер начала описания показателя.
-//       case '2b000000':
-//         $item = secmon_tmp_parse_arn__read_item($fp, 'vnd_');
-//         $item['vnd_cat'] = $current_vnt_cat;
-//         ksort($item);
-//         secmon_tmp_parse_arn__dpm($item);
-//         $func_stats['items_cnt']++;
-//         break;
-
-//       // Разделитель, который стоит либо после показателя, либо после location. Причем, после
-//       // последнего показателя/location в файле, он не указывается.
-//       case '0a000000':
-//         break;
-
-//       // В случае обнаружения неизвестного разделителя, работа прекращается.
-//       default:
-//         throw new Exception('Unknown separator '. check_plain($separator), 1);
-//     }
-
-//     $separator = fread($fp, 4);
-//     if (!$separator) {
-//       dpm('end');
-//       break;
-//     }
-//     $separator = bin2hex($separator);
-//   }
-
-//   dpm($func_stats);
-
-//   fclose($fp);
-// }
-
-
-// function secmon_tmp_parse_arn__dpm($v) {
-//   drupal_set_message('<pre>'. print_r($v, 1) . '</pre>');
-// }
