@@ -1,6 +1,6 @@
 <?php
-namespace WinWSA\Parser
+namespace WinWSA\Parser;
 
 class WinWSAAutorunsBinParser {
-	
+
 }
