@@ -11,7 +11,7 @@ Autoruns-XML-All. 1.0 (pscm.arn.xml-all.1.0)
 
 Показатели собираются утилитой Autoruns (конкретно, ее консольной редакцией) командой:
 
-  autorunsc.exe -a -v -x -accepteula * > out.xml
+    autorunsc.exe -a -v -x -accepteula * > out.xml
   
 Собираются все возможные параметры (``-a``) как system-wide, так и по всем пользователям (``*``) 
 с проверкой цифровых подписей (``-v``). Вывод программы - XML (``-x``).
