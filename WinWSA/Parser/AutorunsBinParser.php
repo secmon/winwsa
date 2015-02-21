@@ -7,22 +7,73 @@ namespace WinWSA\Parser;
  */
 
 class AutorunsBinParser {
-	/** @var string */
-	protected $filepath;
+    /** @var string */
+    protected $filepath;
 
-	public function __construct($filepath = NULL) {
-		if ($filepath) {
-			$this->filepath = $filepath;
-		}
-	}
+    public function __construct($filepath = NULL) {
+        if ($filepath) {
+            $this->filepath = $filepath;
+        }
+    }
 
-	public function parse() {
+    public function parse() {
 
-	}
+    }
 
-	public function setFilepath($filepath) {
-		$this->filepath = $filepath;
-	}
+    public function setFilepath($filepath) {
+        $this->filepath = $filepath;
+    }
+
+    protected function read_location($fp) {
+        $loc = array();
+        $loc['location'] = $this->read_lendata($fp);
+        $loc['unparsed1'] = bin2hex($this->read_data($fp, 4));
+        $loc['changed'] = $this->read_lendata($fp);  
+        return $loc;
+    }
+
+    protected function read_len($fp) {
+        $length = unpack("i", fread($fp, 4));
+        $length = intval($length[1]);
+        return $length;
+    }
+
+    protected function read_lendata($fp) {
+        $length = $this->read_len($fp);
+        if (!$length || $length > 800) {
+            return NULL;
+        }
+        return $this->read_data($fp, $length);
+    }
+
+    protected function read_data($fp, $length) {
+        $data = fread($fp, $length);
+        return $data ? iconv("unicode", "utf-8", $data) : NULL;
+    }
+
+    protected function read_item($fp, $key_prefix = '') {
+        $item = array();
+        $item[$key_prefix.'itemname']     = $this->read_lendata($fp);
+        $item[$key_prefix.'unparsed1']    = bin2hex($this->read_data($fp, 4));
+        $item[$key_prefix.'description']  = $this->read_lendata($fp);
+        $item[$key_prefix.'signer']       = $this->read_lendata($fp);
+        $item[$key_prefix.'imagepath']    = $this->read_lendata($fp);
+        $item[$key_prefix.'time']         = $this->read_lendata($fp);
+        $item[$key_prefix.'unparsed2']    = bin2hex($this->read_data($fp, 20));
+        $item[$key_prefix.'launchstring'] = $this->read_lendata($fp);
+        $item[$key_prefix.'location']     = $this->read_lendata($fp);
+        $item[$key_prefix.'unknown1']     = $this->read_lendata($fp);
+        $item[$key_prefix.'size']         = $this->read_len($fp);
+        $item[$key_prefix.'time2']        = $this->read_lendata($fp);
+        $item[$key_prefix.'company']      = $this->read_lendata($fp);
+        $item[$key_prefix.'unknown2']     = $this->read_lendata($fp);
+        $item[$key_prefix.'version']      = $this->read_lendata($fp);
+        $item[$key_prefix.'unknown3']     = $this->read_lendata($fp);
+        $item[$key_prefix.'unparsed3']    = bin2hex($this->read_data($fp, 4));
+        $item[$key_prefix.'time3']        = $this->read_lendata($fp);
+        return $item;
+    }    
+
 }
 
 
@@ -122,61 +173,4 @@ class AutorunsBinParser {
 
 // function secmon_tmp_parse_arn__dpm($v) {
 //   drupal_set_message('<pre>'. print_r($v, 1) . '</pre>');
-// }
-
-
-
-// function secmon_tmp_parse_arn__read_location($fp) {
-//   $loc = array();
-//   $loc['location'] = secmon_tmp_parse_arn__read_lendata($fp);
-//   $loc['unparsed1'] = bin2hex(secmon_tmp_parse_arn__read_data($fp, 4));
-//   $loc['changed'] = secmon_tmp_parse_arn__read_lendata($fp);  
-//   return $loc;
-// }
-
-
-// function secmon_tmp_parse_arn__read_item($fp, $key_prefix = '') {
-//   $item = array();
-//   $item[$key_prefix.'itemname']     = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unparsed1']    = bin2hex(secmon_tmp_parse_arn__read_data($fp, 4));
-//   $item[$key_prefix.'description']  = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'signer']       = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'imagepath']    = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'time']         = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unparsed2']    = bin2hex(secmon_tmp_parse_arn__read_data($fp, 20));
-//   $item[$key_prefix.'launchstring'] = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'location']     = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unknown1']     = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'size']         = secmon_tmp_parse_arn__read_len($fp);
-//   $item[$key_prefix.'time2']        = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'company']      = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unknown2']     = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'version']      = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unknown3']     = secmon_tmp_parse_arn__read_lendata($fp);
-//   $item[$key_prefix.'unparsed3']    = bin2hex(secmon_tmp_parse_arn__read_data($fp, 4));
-//   $item[$key_prefix.'time3']        = secmon_tmp_parse_arn__read_lendata($fp);
-//   return $item;
-// }
-
-
-
-// function secmon_tmp_parse_arn__read_len($fp) {
-//   $length = unpack("i", fread($fp, 4));
-//   $length = intval($length[1]);
-//   return $length;
-// }
-
-
-// function secmon_tmp_parse_arn__read_lendata($fp) {
-//   $length = secmon_tmp_parse_arn__read_len($fp);
-//   if (!$length || $length > 800) {
-//     return NULL;
-//   }
-//   return secmon_tmp_parse_arn__read_data($fp, $length);
-// }
-
-
-// function secmon_tmp_parse_arn__read_data($fp, $length) {
-//   $data = fread($fp, $length);
-//   return $data ? iconv("unicode", "utf-8", $data) : NULL;
 // }
