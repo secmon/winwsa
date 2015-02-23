@@ -21,4 +21,12 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
         $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltlmods.xml');
         $this->assertEquals('0cae1d927cbf8ecaa7e7974a1a04c323', md5(serialize($items)));
     }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testParseAutoruns1301XMLtBadSigner() {
+        $parser = new AutorunsXML13Parser();
+        $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltbadsig.xml');
+    }
 }
