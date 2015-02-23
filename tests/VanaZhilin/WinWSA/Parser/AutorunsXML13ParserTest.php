@@ -9,12 +9,12 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseUnexistentFile() 
     {
-        $parser = new AutorunsXML13Parser();
-        $parser->parse('unexistredfile210573');
+        $parser = new \VanaZhilin\WinWSA\Parser\AutorunsXML13Parser();
+        $parser->parse('unexistedfile210573');
     }
 
     public function testParseAutoruns1301XMLt() {
-        $parser = new AutorunsXML13Parser();
-        $parser->parse(dirname(__FILE__). '/../../../fixtures/autoruns13.01-xmlt.xml');
+        $parser = new \VanaZhilin\WinWSA\Parser\AutorunsXML13Parser();
+        $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmlt.xml');
     }
 }
