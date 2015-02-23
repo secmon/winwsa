@@ -16,8 +16,17 @@ namespace WinWSA\Parser;
  */
 class AutorunsXML13Parser
 {
-    /** @const array */
-    protected const $REQUIRED_ITEM_KEYS = array(
+    /** @var array Parsed items */
+    protected $items = array();
+
+    /** @var array Currently processed item */
+    protected $current_item;
+
+    /** @var string Currently processed XML node name */
+    protected $current_node_name;
+
+    /** @var array */
+    protected $required_item_keys = array(
         'location',
         'itemname',
         'enabled',
@@ -29,15 +38,6 @@ class AutorunsXML13Parser
         'version',
         'time',
     );
-
-    /** @var array Parsed items */
-    protected $items = array();
-
-    /** @var array Currently processed item */
-    protected $current_item;
-
-    /** @var string Currently processed XML node name */
-    protected $current_node_name;
 
     /** @var object Pointer to opened report file */
     protected $filepointer;
@@ -91,7 +91,7 @@ class AutorunsXML13Parser
         // New item parsing starts.
         if ($name == 'item') {
             $this->current_item = array();
-            foreach ($this->REQUIRED_ITEM_KEYS as $key) {
+            foreach ($this->required_item_keys as $key) {
               $this->current_item['vnd_'. $key] = '';
             }            
         }
