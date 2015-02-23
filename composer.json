@@ -1,9 +1,9 @@
 {
-    "name": "vanazhilin/WinWSA",
+    "name": "VanaZhilin/WinWSA",
     "authors": [
         {
             "name": "Ivan Zhilin",
-            "email": "i.a.zhilin@ya.ru"
+            "email": "ivan.a.zhilin@ya.ru"
         }
     ],
     "require": {},
@@ -12,7 +12,7 @@
     },
     "autoload": {
         "psr-4": {
-            "vanazhilin\\WinWSA\\": "src"
+            "VanaZhilin\\WinWSA\\": "src"
         }
     }
 }
