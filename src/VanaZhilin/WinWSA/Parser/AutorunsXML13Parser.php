@@ -142,7 +142,7 @@ class AutorunsXML13Parser
 
         // Item parsing is finished. Add it to result list.
         if ($name == 'item') {
-            array_walk($this->current_item, 'trim');
+            $this->current_item = array_map('trim', $this->current_item);
             $this->items[] = $this->current_item;
             $this->current_item = NULL;
         }
