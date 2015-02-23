@@ -18,6 +18,7 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
 
         $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmlt.xml');
 
+        $this->assertTrue(is_array($items) && isset($items[954]));
         $single_item = $items[954];
         $this->assertEquals(count($single_item), 21);
         $this->assertEquals($single_item['vnd_location'],     'HKCU\Software\Microsoft\Internet Explorer\UrlSearchHooks');
