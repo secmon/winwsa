@@ -62,7 +62,7 @@ class AutorunsXML13Parser
             throw new Exception('Unable to open report file');
         } 
 
-        $this->xml_parser = xml_parser_create('utf-16'); 
+        $this->xml_parser = xml_parser_create(); 
         xml_set_object($this->xml_parser, $this);
         xml_parser_set_option($this->xml_parser, XML_OPTION_CASE_FOLDING, 0);
         xml_set_element_handler($this->xml_parser, 'startElementHandler', 'endElementHandler');
