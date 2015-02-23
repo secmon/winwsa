@@ -56,10 +56,10 @@ class AutorunsXML13Parser
         $this->items = array();
 
         if (!$filepath || !is_file($filepath)) {
-            throw new Exception('Invalid report file path');
+            throw new \Exception('Invalid report file path');
         }
         if (!is_readable($filepath) || !($this->filepointer = fopen($filepath, 'r'))) {     
-            throw new Exception('Unable to open report file');
+            throw new \Exception('Unable to open report file');
         } 
 
         $this->xml_parser = xml_parser_create(); 
@@ -70,7 +70,7 @@ class AutorunsXML13Parser
 
         while ($data = fgets($this->filepointer)) {   
             if (!xml_parse($this->xml_parser, $data, feof($this->filepointer))) {
-                throw new Exception(sprintf(
+                throw new \Exception(sprintf(
                     'XML Error: %d - %s (at line %d)',
                     xml_get_error_code($this->xml_parser),
                     xml_error_string(xml_get_error_code($this->xml_parser)),
@@ -126,7 +126,7 @@ class AutorunsXML13Parser
                         }
                     }
                     if (!isset($this->current_item['vnd_signer_verified'])) {
-                        throw new Exception(sprintf(
+                        throw new \Exception(sprintf(
                             'Unable to parse signer field value "%s" (at line %d)',
                             $data,
                             xml_get_current_line_number($this->xml_parser)
