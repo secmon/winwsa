@@ -100,7 +100,7 @@ class AutorunsXML13Parser
 
     protected function endElementHandler($xml_parser, $name)
     {
-        switch ($this->current_node_name) {
+        switch ($name) {
             // Explode signature field. Examples of value: 
             // (Verified) Microsoft Corporation
             // (Not verified) Microsoft Corporation
@@ -142,6 +142,7 @@ class AutorunsXML13Parser
 
         // Item parsing is finished. Add it to result list.
         if ($name == 'item') {
+            array_walk($this->current_item, 'trim');
             $this->items[] = $this->current_item;
             $this->current_item = NULL;
         }
