@@ -123,7 +123,7 @@ class AutorunsXML13Parser
 
             // Parse user domain and name from profile field (or mark scope as "computer").
             case 'profile':
-                if ($data == 'System-wide') {
+                if ($this->current_item['vnd_profile'] == 'System-wide') {
                     $this->current_item['scope'] = 'computer';
                 } else {
                     $userdata = explode ('\\', $this->current_item['vnd_profile']);
