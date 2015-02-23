@@ -81,6 +81,7 @@ class AutorunsXML13Parser
 
         xml_parser_free($this->xml_parser);
         fclose($this->filepointer);
+        $this->filepointer = NULL;
         return $this->items;
     } 
 
@@ -99,6 +100,46 @@ class AutorunsXML13Parser
 
     protected function endElementHandler($xml_parser, $name)
     {
+        switch ($this->current_node_name) {
+            // Explode signature field. Examples of value: 
+            // (Verified) Microsoft Corporation
+            // (Not verified) Microsoft Corporation
+            case 'signer':
+                foreach (array('verified', 'not verified') as $key) {
+                    $br_key = '('. $key .')';
+                    if (stripos($this->current_item['vnd_signer'], $br_key) === 0) {
+                        $this->current_item['vnd_signer_verified'] = $key;
+                        $this->current_item['vnd_signer_name'] = substr($this->current_item['vnd_signer'], strlen($br_key) + 1);
+                    }
+                }
+                if (!isset($this->current_item['vnd_signer_verified'])) {
+                    throw new \Exception(sprintf(
+                        'Unable to parse signer field value "%s" (at line %d)',
+                        $this->current_item['vnd_signer'],
+                        xml_get_current_line_number($this->xml_parser)
+                    ));
+                }
+                break;
+
+            // Parse user domain and name from profile field (or mark scope as "computer").
+            case 'profile':
+                if ($data == 'System-wide') {
+                    $this->current_item['scope'] = 'computer';
+                } else {
+                    $userdata = explode ('\\', $this->current_item['vnd_profile']);
+                    $this->current_item['scope'] = 'user';
+                    $this->current_item['user_domain'] = strtoupper($userdata[0]);
+                    $this->current_item['user_name'] = $userdata[1];                         
+                }
+                break;
+
+            // Convert timestamp to full UCT string.
+            case 'date':
+                // @todo
+                // $this->current_item['vnd_time_utc'] = 
+                break;
+        }
+
         // Item parsing is finished. Add it to result list.
         if ($name == 'item') {
             $this->items[] = $this->current_item;
@@ -111,47 +152,10 @@ class AutorunsXML13Parser
         // Fill item's field.
         if (!is_null($this->current_item) && $this->current_node_name != 'item') {
             // Every field added to item with 'vnd_' prefix (as is).
-            $this->current_item['vnd_'. $this->current_node_name] = $data;
-
-            switch ($this->current_node_name) {
-                // Explode signature field. Examples of value: 
-                // (Verified) Microsoft Corporation
-                // (Not verified) Microsoft Corporation
-                case 'signer':
-                    foreach (array('verified', 'not verified') as $key) {
-                        $br_key = '('. $key .')';
-                        if (stripos($data, $br_key) === 0) {
-                            $this->current_item['vnd_signer_verified'] = $key;
-                            $this->current_item['vnd_signer_name'] = substr($data, strlen($br_key));
-                        }
-                    }
-                    if (!isset($this->current_item['vnd_signer_verified'])) {
-                        throw new \Exception(sprintf(
-                            'Unable to parse signer field value "%s" (at line %d)',
-                            $data,
-                            xml_get_current_line_number($this->xml_parser)
-                        ));
-                    }
-                    break;
-
-                // Parse user domain and name from profile field (or mark scope as "computer").
-                case 'profile':
-                    if ($data == 'System-wide') {
-                        $this->current_item['scope'] = 'computer';
-                    } else {
-                        $userdata = explode ('\\', $data);
-                        $this->current_item['scope'] = 'user';
-                        $this->current_item['user_domain'] = strtoupper($userdata[0]);
-                        $this->current_item['user_name'] = $userdata[1];                         
-                    }
-                    break;
-
-                // Convert timestamp to full UCT string.
-                case 'date':
-                    // @todo
-                    // $this->current_item['vnd_time_utc'] = 
-                    break;
+            if (!isset($this->current_item['vnd_'. $this->current_node_name])) {
+              $this->current_item['vnd_'. $this->current_node_name] = '';
             }
+            $this->current_item['vnd_'. $this->current_node_name] .= $data;
         }
     }
 
