@@ -133,7 +133,7 @@ class AutorunsXML13Parser
                 }
                 break;
 
-            // Convert timestamp to full UCT string.
+            // Convert timestamp to full UTC string.
             case 'date':
                 // @todo
                 // $this->current_item['vnd_time_utc'] = 
