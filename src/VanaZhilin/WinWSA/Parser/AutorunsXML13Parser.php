@@ -19,10 +19,10 @@ class AutorunsXML13Parser
     /** @var array Parsed items */
     protected $items = array();
 
-    /** @var array Currently processed item */
+    /** @var array Currently processing item */
     protected $current_item;
 
-    /** @var string Currently processed XML node name */
+    /** @var string Currently processing XML node name */
     protected $current_node_name;
 
     /** @var array */
@@ -150,9 +150,8 @@ class AutorunsXML13Parser
 
     protected function elementDataHandler($xml_parser, $data)
     {
-        // Fill item's field.
+        // Fill item's field (as 'vnd_FIELDNAME'). Handler is called multiple times for each field.
         if (!is_null($this->current_item) && $this->current_node_name != 'item') {
-            // Every field added to item with 'vnd_' prefix (as is).
             if (!isset($this->current_item['vnd_'. $this->current_node_name])) {
               $this->current_item['vnd_'. $this->current_node_name] = '';
             }
