@@ -4,9 +4,12 @@ namespace VanaZhilin\WinWSA\Parser;
 
 class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
 {
-    public function testParsingOfExampleReports() 
+	/**
+	 * @expectedException \Exception
+	 */
+    public function testParseUnexistentFile() 
     {
     	$parser = new AutorunsXML13Parser();
-    	$parser->parse(dirname(__FILE__));
+    	$parser->parse('unexistredfile210573');
     }
 }
