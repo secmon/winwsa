@@ -1,0 +1,18 @@
+{
+    "name": "vanazhilin/WinWSA",
+    "authors": [
+        {
+            "name": "Ivan Zhilin",
+            "email": "i.a.zhilin@ya.ru"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "4.5.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "vanazhilin\\WinWSA\\": "src"
+        }
+    }
+}
