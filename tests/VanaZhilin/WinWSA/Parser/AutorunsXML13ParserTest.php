@@ -1,6 +1,6 @@
 <?php
 
-namespace WinWSA\Parser;
+namespace VanaZhilin\WinWSA\Parser;
 
 class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
 {

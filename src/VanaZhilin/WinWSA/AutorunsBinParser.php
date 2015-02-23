@@ -1,9 +1,9 @@
 <?php
 
-namespace WinWSA\Parser;
+namespace VanaZhilin\WinWSA\Parser;
 
 /**
- * @file WinWSA\Parser\AutorunsBinParser.php
+ * @file
  * Autoruns binary (ARN) report parser.
  */
 

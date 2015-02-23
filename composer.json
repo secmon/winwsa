@@ -11,8 +11,8 @@
         "phpunit/phpunit": "4.5.*"
     },
     "autoload": {
-        "psr-4": {
-            "VanaZhilin\\WinWSA\\": "src"
+        "psr-0": {
+            "VanaZhilin\\WinWSA": "src/"
         }
     }
 }

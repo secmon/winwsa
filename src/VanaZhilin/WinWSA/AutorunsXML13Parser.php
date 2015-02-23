@@ -1,6 +1,6 @@
 <?php
 
-namespace WinWSA\Parser;
+namespace VanaZhilin\WinWSA\Parser;
 
 /**
  * Parse Autoruns v13 XML-report. 
