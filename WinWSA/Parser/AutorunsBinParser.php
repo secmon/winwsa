@@ -1,4 +1,5 @@
 <?php
+
 namespace WinWSA\Parser;
 
 /**
@@ -6,7 +7,8 @@ namespace WinWSA\Parser;
  * Autoruns binary (ARN) report parser.
  */
 
-class AutorunsBinParser {
+class AutorunsBinParser 
+{
     /**
      * List of vendor categories in order of their appearance in ARN file (same as in Autoruns GUI).
      *
@@ -40,11 +42,12 @@ class AutorunsBinParser {
      *
      * @param $arnpath  string  Path to Autoruns binary report.
      * @param $iconsdir string  Path for saving icons. If NULL, icons will not be extracted.
-     * @return  array  Array of parsed items.
+     * @return array Array of parsed items.
      *
      * @throws \Exception
      */
-    public function parse($arnpath, $iconsdir = NULL) {
+    public function parse($arnpath, $iconsdir = NULL) 
+    {
         if ($iconsdir) {
             if (!is_dir($iconsdir) || !is_writable($iconsdir)) {
                 throw new Exception('Path for saving icons in not exists or is not writable', 1);
@@ -107,7 +110,8 @@ class AutorunsBinParser {
         fclose($fp);
     }
 
-    protected function readLocation($fp) {
+    protected function readLocation($fp) 
+    {
         $loc = array();
         $loc['location']  = $this->readLendata($fp);
         $loc['unparsed1'] = bin2hex($this->readData($fp, 4));
@@ -115,13 +119,15 @@ class AutorunsBinParser {
         return $loc;
     }
 
-    protected function readLen($fp) {
+    protected function readLen($fp) 
+    {
         $length = unpack("i", fread($fp, 4));
         $length = intval($length[1]);
         return $length;
     }
 
-    protected function readLendata($fp) {
+    protected function readLendata($fp) 
+    {
         $length = $this->readLen($fp);
         if (!$length || $length > 800) {
             return NULL;
@@ -129,12 +135,14 @@ class AutorunsBinParser {
         return $this->readData($fp, $length);
     }
 
-    protected function readData($fp, $length) {
+    protected function readData($fp, $length) 
+    {
         $data = fread($fp, $length);
         return $data ? iconv('unicode', 'utf-8', $data) : NULL;
     }
 
-    protected function readItem($fp, $key_prefix = '') {
+    protected function readItem($fp, $key_prefix = '') 
+    {
         $item = array();
         $item[$key_prefix.'itemname']     = $this->readLendata($fp);
         $item[$key_prefix.'unparsed1']    = bin2hex($this->readData($fp, 4));
