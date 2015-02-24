@@ -20,7 +20,7 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($items) && isset($items[954]));
         $single_item = $items[954];
-        $this->assertEquals(count($single_item), 21);
+        $this->assertEquals(count($single_item), 22);
         $this->assertEquals($single_item['vnd_location'],     'HKCU\Software\Microsoft\Internet Explorer\UrlSearchHooks');
         $this->assertEquals($single_item['vnd_itemname'],     'Microsoft Url Search Hook');
         $this->assertEquals($single_item['vnd_enabled'],      'Enabled');
@@ -44,10 +44,10 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($single_item['vnd_pesha256hash'], 'CF739C5992CAADC5C6730501230B792A8A6C3ED5');
         $this->assertEquals($single_item['vnd_sha256hash'],   'B91A1C93F85AB7E2611AEB097D9B94AE0680E3AB39ACD0D41E16A65DFFDB4733');
 
-        $this->assertEquals(md5(serialize($items)), '0cae1d927cbf8ecaa7e7974a1a04c323');
+        $this->assertEquals(md5(serialize($items)), 'dcbe69cca13162c950c6f2e721a1a360');
 
         // $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltlmods.xml');
-        $this->assertEquals(md5(serialize($items)), '0cae1d927cbf8ecaa7e7974a1a04c323');
+        $this->assertEquals(md5(serialize($items)), 'dcbe69cca13162c950c6f2e721a1a360');
     }
 
     /**
