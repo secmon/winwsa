@@ -56,4 +56,20 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
         $parser = new AutorunsXML13Parser();
         $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltbadsig.xml');
     }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testParseAutoruns1301XMLtHalfXML() {
+        $parser = new AutorunsXML13Parser();
+        $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmlthalf.xml');
+    }    
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testParseAutoruns1301XMLtBadXMLStruct() {
+        $parser = new AutorunsXML13Parser();
+        $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltbadstruct.xml');
+    }     
 }
