@@ -145,10 +145,11 @@ class AutorunsXML13Parser
                 }
                 break;
 
-            // Convert timestamp to full UTC string.
+            // Convert timestamp to full UTC string YYYY-MM-DDTHH:mm:ss.
             case 'date':
-                // @todo
-                // $this->current_item['vnd_time_utc'] = 
+                if (preg_match('/^(\d{4})(\d{2})(\d{2})\-(\d{2})(\d{2})(\d{2})$/i', $this->current_item['vnd_time'], $d)) {
+                    $this->current_item['vnd_time_utc'] = $d[1].'-'.$d[2].'-'.$d[3].'T'.$d[4].':'.$d[5].':'.$d[6];
+                }
                 break;
         }
 
