@@ -46,7 +46,7 @@ class AutorunsXML13ParserTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(md5(serialize($items)), 'dcbe69cca13162c950c6f2e721a1a360');
 
-        // $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltlmods.xml');
+        $items = $parser->parse(dirname(__FILE__) .'/../../../fixtures/autoruns13.01-xmltlmods.xml');
         $this->assertEquals(md5(serialize($items)), 'dcbe69cca13162c950c6f2e721a1a360');
     }
 
