@@ -125,7 +125,7 @@ class AutorunsXML13Parser
             case 'profile':
                 if ($this->current_item['vnd_profile'] == 'System-wide') {
                     $this->current_item['scope'] = 'computer';
-                } elseif (preg_match('/^([^\\]+)\\(.+)$/ius', $this->current_item['vnd_profile']), $m) {
+                } elseif (preg_match('/^([^\\]+)\\(.+)$/ius', $this->current_item['vnd_profile'], $m)) {
                     $this->current_item['scope'] = 'user';
                     $this->current_item['user_domain'] = strtoupper($m[1]);
                     $this->current_item['user_name'] = $m[2];                         
