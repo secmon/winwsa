@@ -125,7 +125,7 @@ class AutorunsXML13Parser
             case 'profile':
                 if ($this->current_item['vnd_profile'] == 'System-wide') {
                     $this->current_item['scope'] = 'computer';
-                } else
+                } else {
                     $userdata = explode('\\', $this->current_item['vnd_profile']);
                     if ($userdata && isset($userdata[1])) {
                         $this->current_item['scope'] = 'user';
