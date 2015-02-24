@@ -46,7 +46,9 @@ class AutorunsXML13Parser
     protected $xml_parser;
 
     /**
-     * @param $filepath string Path to report.
+    *  Parse given Autoruns XML report and return assoc array.
+    *
+     * @param $filepath string Full path of report.
      * @return array
      * 
      * @throws \Exception
@@ -85,6 +87,9 @@ class AutorunsXML13Parser
         return $this->items;
     } 
 
+    /**
+     * @see xml_set_element_handler()
+     */
     protected function startElementHandler($xml_parser, $name, $attrs)
     {
         $this->current_node_name = $name;
@@ -93,11 +98,14 @@ class AutorunsXML13Parser
         if ($name == 'item') {
             $this->current_item = array();
             foreach ($this->required_item_keys as $key) {
-              $this->current_item['vnd_'. $key] = '';
+                $this->current_item['vnd_'. $key] = '';
             }            
         }
     }
 
+    /**
+     * @see xml_set_element_handler()
+     */
     protected function endElementHandler($xml_parser, $name)
     {
         switch ($name) {
@@ -152,6 +160,9 @@ class AutorunsXML13Parser
         }
     }
 
+    /**
+     * @see xml_set_character_data_handler()
+     */
     protected function elementDataHandler($xml_parser, $data)
     {
         // Fill item's field (as 'vnd_FIELDNAME'). Handler is called multiple times for each field.
